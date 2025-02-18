@@ -33,8 +33,10 @@ st.subheader("Clasificación de recetas por calorías")
 df["Nivel Calórico"] = pd.cut(df["Calorías"], bins=[0, 250, 370, float("inf")], 
                                 labels=["Baja (<250 kcal)", "Normal (250-370 kcal)", "Alta (>370 kcal)"])
 conteo_niveles = df["Nivel Calórico"].value_counts().reset_index()
-fig_niveles = px.bar(conteo_niveles, x="index", y="Nivel Calórico", title="Número de recetas por nivel calórico")
+conteo_niveles.columns = ['Nivel Calórico', 'Cantidad']  # Renombrar las columnas para claridad
+fig_niveles = px.bar(conteo_niveles, x="Nivel Calórico", y="Cantidad", title="Número de recetas por nivel calórico")
 st.plotly_chart(fig_niveles)
+
 
 # Gráfico de barras de los macronutrientes para la categoría seleccionada
 st.subheader(f"Macronutrientes en la categoría {categoria_seleccionada}")
