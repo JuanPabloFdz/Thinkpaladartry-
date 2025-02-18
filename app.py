@@ -3,31 +3,31 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Cargar el dataset
+# Cargamos el data set
 @st.cache_data
 def load_data():
     return pd.read_csv("recetas.csv", encoding="utf-8")
 
 df = load_data()
 
-# Título de la App
-st.title("📊 Análisis de Recetas - ThinkPaladar")
-st.write("Visualización y análisis de recetas en base a sus valores nutricionales.")
+# Definimos el título de la app 
+st.title("🥐 Análisis de Recetas - ThinkPaladar🥑")
+st.write("A continiuación se presenta los datos mas relevantes relativos a las recetas, sus valores nutricionales y sus características.")
 
-# Verificar las columnas del DataFrame
+# Mostramos la estructura del df
 st.subheader("📋 Estructura de los Datos")
 st.write(df.head())  # Muestra los primeros registros del DataFrame
 
-# 📌 Filtro de recetas que tienen información nutricional
+# FILTRO DEBBUGING - quitar 
 if "Tiene Nutrición" in df.columns:
     df_filtered = df[df["Tiene Nutrición"] == 1]
 else:
-    st.write("⚠️ Advertencia: La columna 'Tiene Nutrición' no está presente en el CSV.")
-    df_filtered = df  # Usamos todo el dataset si la columna no está
+    st.write("La columna 'Tiene Nutrición' no está presente en el CSV.")
+    df_filtered = df 
 
- 
+# Gráfico 1: 
 # 📊 **Gráfico de barras: Macronutrientes medios por categoría**
-st.subheader("📊 Macronutrientes Medios por Categoría")
+st.subheader("📊 Macronutrientes Medios por Categoría") #Titulo del gráfico
 df_nutrition = df_filtered.groupby("Categoría")[["Grasas (100g)", "Proteínas (100g)", "Carbohidratos (100g)"]].mean().reset_index()
 
 fig = px.bar(
@@ -39,10 +39,10 @@ labels={"value": "Cantidad (100g)", "variable": "Macronutriente"},
 barmode="group")
 st.plotly_chart(fig)
 
-
+#Gráfico 2: 
 # 📊 **Tiempo Medio de Recetas vs Dificultad**
-st.subheader("⏳ Tiempo Medio de Recetas por Dificultad")
-df_difficulty = df_filtered.groupby("Dificultad")["Tiempo (min)"].mean().reset_index()
+st.subheader("⏳ Tiempo Medio de Recetas por Dificultad") #Titulo del gráfico
+df_difficulty = df_filtered.groupby("Dificultad")["Tiempo (min)"].mean().reset_index() #agrupamos por dificultad
 
 fig = px.bar(
 df_difficulty,
@@ -53,9 +53,9 @@ labels={"Tiempo (min)": "Tiempo Promedio (min)"})
 st.plotly_chart(fig)
 
 
-    
+#Gráfico 3:     
 # 📊 **Gráfico de barras: Calorías Medias por Categoría**
-st.subheader("🔥 Calorías Medias por Categoría")
+st.subheader("🔥 Calorías Medias por Categoría") #Titulo del gráfico
 df_calories = df_filtered.groupby("Categoría")["Calorías (100g)"].mean().reset_index()
 
 fig = px.bar(
@@ -66,8 +66,9 @@ fig = px.bar(
     labels={"Calorías (100g)": "Calorías por 100g"})
 st.plotly_chart(fig)
 
+# Gráfico 4
 # 📊 **Clasificación de recetas por calorías**
-st.subheader("🍽️ Clasificación de Recetas por Calorías")
+st.subheader("🍽️ Clasificación de Recetas por Calorías") #Titulo del gráfico
 df_filtered["Clasificación Calórica"] = pd.cut(
     df_filtered["Calorías (100g)"],
     bins=[0, 250, 370, df_filtered["Calorías (100g)"].max()],
@@ -88,7 +89,7 @@ fig = px.bar(
 st.plotly_chart(fig)
 
 # 📌 **Selección de una categoría para ver detalles nutricionales**
-st.subheader("📌 Selecciona una Categoría para Ver sus Detalles")
+st.subheader("📌 Selecciona una Categoría para Ver sus Detalles") #Titulo del gráfico
 categorias = df_filtered["Categoría"].unique()
 selected_category = st.selectbox("Selecciona una categoría:", categorias)
 
@@ -105,31 +106,35 @@ fig = px.bar(
 )
 st.plotly_chart(fig)
 
-
+########## Top recetas 
 # 🔥 **Top 5 Recetas Más Rápidas**
 st.subheader("⏩ Top 5 Recetas Más Rápidas")
 fastest_recipes = df_filtered[df_filtered["Tiempo (min)"] < 600].nsmallest(5, "Tiempo (min)")
 st.dataframe(fastest_recipes[["Título", "Categoría", "Tiempo (min)", "Dificultad", "Calorías (100g)"]])
 
+
+#Receta con más pasos. 
 # 🔢 **Top 5 Recetas con Más Pasos**
 st.subheader("📜 Top 5 Recetas con Más Pasos")
 most_steps_recipes = df_filtered.nlargest(5, "Número de Pasos")
 st.dataframe(most_steps_recipes[["Título", "Categoría", "Número de Pasos", "Dificultad", "Calorías (100g)"]])
 
+#######################
 
-
+#####################
+# Hacemos un sugeridor de recetas 
 
 # 🛒 **Sugeridor de Recetas**
 st.subheader("🤖 Sugeridor de Recetas")
-quieres_sugerencia = st.checkbox("¿Quieres una sugerencia de receta?")
+quieres_sugerencia = st.checkbox("¿Quieres una sugerencia de receta?") # Boton para saber si quiere sugerencia o no
 
 if quieres_sugerencia:
-    categoria_sugerida = st.selectbox("Selecciona una categoría para la sugerencia:", df["Categoría"].unique())
+    categoria_sugerida = st.selectbox("Selecciona una categoría para la sugerencia:", df["Categoría"].unique()) # Hacemos que se deba selecionar una categoria. 
     df_sugerencias = df[df["Categoría"] == categoria_sugerida]
     
     if not df_sugerencias.empty:
         receta_sugerida = df_sugerencias.sample(1).iloc[0]  # Elegimos una receta aleatoria
-        
+        #Y visualizamos 
         st.write(f"### 🥘 Receta Sugerida: {receta_sugerida['Título']}")
         st.write(f"- ⏳ Tiempo de preparación: {receta_sugerida['Tiempo (min)']} minutos")
         st.write(f"- 🔥 Calorías por 100g: {receta_sugerida['Calorías (100g)']}")
@@ -145,14 +150,14 @@ if quieres_sugerencia:
 
 
 # Crear gráfico de dispersión
-df_filtered = df[df["Tiempo (min)"] <= 600]
-fig_steps_time = px.scatter(df_filtered, 
+df_filtered = df[df["Tiempo (min)"] <= 600] #Hacemos un filtrado porque hay recetas muy extensas y distorsionan la  visualización. 
+fig_pasos = px.scatter(df_filtered, 
                             x="Número de Pasos", 
                             y="Tiempo (min)", 
-                            color="Dificultad",  # Colorear por dificultad
-                            size="Tiempo (min)",  # Tamaño de los puntos según el tiempo
-                            hover_data=["Título", "Categoría"],  # Mostrar detalles al pasar el mouse
+                            color="Dificultad",  # Coloreamos por dificultad 
+                            size="Tiempo (min)",  # DEfinimos el tamño según el tiempo
+                            hover_data=["Título", "Categoría"],  # Esto es un elemento dinamico qu enos ayuda a ver mejor los datos al masar el mouse. 
                             title="Relación entre el Número de Pasos y el Tiempo de Preparación")
 
-# Mostrar en Streamlit
-st.plotly_chart(fig_steps_time)
+# mostramos
+st.plotly_chart(fig_pasos)
