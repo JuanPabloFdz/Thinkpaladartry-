@@ -109,3 +109,26 @@ fastest_recipe = df_filtered.loc[df_filtered["Tiempo (min)"].idxmin()]
 
 st.write(f"🥇 **{fastest_recipe['Título']}** (Tiempo: {fastest_recipe['Tiempo (min)']} min)")
 
+# 🛒 **Sugeridor de Recetas**
+st.subheader("🤖 Sugeridor de Recetas")
+quieres_sugerencia = st.checkbox("¿Quieres una sugerencia de receta?")
+
+if quieres_sugerencia:
+    categoria_sugerida = st.selectbox("Selecciona una categoría para la sugerencia:", df["Categoría"].unique())
+    df_sugerencias = df[df["Categoría"] == categoria_sugerida]
+    
+    if not df_sugerencias.empty:
+        receta_sugerida = df_sugerencias.sample(1).iloc[0]  # Elegimos una receta aleatoria
+        
+        st.write(f"### 🥘 Receta Sugerida: {receta_sugerida['Título']}")
+        st.write(f"- ⏳ Tiempo de preparación: {receta_sugerida['Tiempo (min)']} minutos")
+        st.write(f"- 🔥 Calorías por 100g: {receta_sugerida['Calorías (100g)']}")
+        st.write(f"- 🍗 Proteínas: {receta_sugerida['Proteínas (100g)']}g")
+        st.write(f"- 🍞 Carbohidratos: {receta_sugerida['Carbohidratos (100g)']}g")
+        st.write(f"- 🛢 Grasas: {receta_sugerida['Grasas (100g)']}g")
+        
+        st.write("### 🛒 Lista de la compra")
+        st.write(f"{receta_sugerida['Ingredientes con Cantidad']}")
+    else:
+        st.warning("No hay recetas en esta categoría.")
+
