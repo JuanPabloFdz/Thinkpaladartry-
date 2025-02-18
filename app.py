@@ -2,55 +2,66 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Cargar los datos desde el CSV
+# 📌 Configuración de la Página
+st.set_page_config(page_title="Dashboard de Recetas", page_icon="🍽️", layout="wide")
+
+# 📂 Cargar el CSV con los datos de recetas
 @st.cache_data
 def load_data():
     return pd.read_csv("recetas.csv")
 
 df = load_data()
 
-# Sidebar para seleccionar la categoría de recetas
-categoria_seleccionada = st.sidebar.selectbox("Selecciona una categoría", df["Categoría"].unique())
+# 🎨 Estilo
+st.title("🍽️ Dashboard de Recetas")
+st.markdown("Analiza las recetas según su contenido nutricional, dificultad y tiempo de preparación.")
 
-# Filtrar datos por categoría seleccionada
-filtered_df = df[df["Categoría"] == categoria_seleccionada]
+# 📌 Filtros
+st.sidebar.header("📊 Filtros")
+categorias = st.sidebar.multiselect("Selecciona Categorías", df["Categoría"].unique(), default=df["Categoría"].unique())
 
-# Gráfico de barras - Macronutrientes promedio por categoría
-st.subheader("Macronutrientes promedio por categoría")
-macronutrientes = df.groupby("Categoría")[["Proteínas", "Grasas", "Carbohidratos"]].mean().reset_index()
-fig_macros = px.bar(macronutrientes, x="Categoría", y=["Proteínas", "Grasas", "Carbohidratos"],
-                     title="Macronutrientes medios por categoría", barmode="group")
-st.plotly_chart(fig_macros)
+# Filtrar por categorías seleccionadas
+df_filtered = df[df["Categoría"].isin(categorias)]
 
-# Gráfico de calorías medias por categoría
-st.subheader("Calorías medias por categoría")
-calorias_medias = df.groupby("Categoría")["Calorías"].mean().reset_index()
-fig_calorias = px.bar(calorias_medias, x="Categoría", y="Calorías", title="Calorías promedio por categoría")
-st.plotly_chart(fig_calorias)
+# 📌 Gráfico 1: Comparación de Grasas, Proteínas y Carbohidratos por Categoría
+st.subheader("📊 Comparación de Macronutrientes por Categoría")
+df_nutrition = df_filtered.groupby("Categoría")[["Grasas (100g)", "Proteínas (100g)", "Carbohidratos (100g)"]].mean().reset_index()
+fig1 = px.bar(df_nutrition, x="Categoría", y=["Grasas (100g)", "Proteínas (100g)", "Carbohidratos (100g)"], 
+              barmode="group", title="Grasas, Proteínas y Carbohidratos Medios por Categoría")
+st.plotly_chart(fig1)
 
-# Clasificación de recetas por ingesta calórica
-st.subheader("Clasificación de recetas por calorías")
-df["Nivel Calórico"] = pd.cut(df["Calorías"], bins=[0, 250, 370, float("inf")], 
-                                labels=["Baja (<250 kcal)", "Normal (250-370 kcal)", "Alta (>370 kcal)"])
-conteo_niveles = df["Nivel Calórico"].value_counts().reset_index()
-conteo_niveles.columns = ['Nivel Calórico', 'Cantidad']  # Renombrar las columnas para claridad
-fig_niveles = px.bar(conteo_niveles, x="Nivel Calórico", y="Cantidad", title="Número de recetas por nivel calórico")
-st.plotly_chart(fig_niveles)
+# 📌 Gráfico 2: Calorías Medias por Categoría
+st.subheader("🔥 Calorías Medias por Categoría")
+df_calories = df_filtered.groupby("Categoría")["Calorías (100g)"].mean().reset_index()
+fig2 = px.bar(df_calories, x="Categoría", y="Calorías (100g)", title="Calorías Medias por Categoría", color="Calorías (100g)")
+st.plotly_chart(fig2)
 
+# 📌 Gráfico 3: Clasificación de Recetas por Calorías
+st.subheader("🍏 Clasificación de Recetas por Calorías")
+df_filtered["Caloría Nivel"] = pd.cut(df_filtered["Calorías (100g)"], bins=[0, 250, 370, 1000], 
+                                       labels=["Baja", "Normal", "Alta"])
+df_calorie_count = df_filtered.groupby(["Categoría", "Caloría Nivel"]).size().reset_index(name="Conteo")
+fig3 = px.bar(df_calorie_count, x="Categoría", y="Conteo", color="Caloría Nivel", 
+              title="Número de Recetas por Nivel de Calorías")
+st.plotly_chart(fig3)
 
-# Gráfico de barras de los macronutrientes para la categoría seleccionada
-st.subheader(f"Macronutrientes en la categoría {categoria_seleccionada}")
-fig_categoria = px.bar(filtered_df, x="Título", y=["Proteínas", "Grasas", "Carbohidratos", "Calorías"],
-                       title=f"Macronutrientes y calorías en {categoria_seleccionada}", barmode="group")
-st.plotly_chart(fig_categoria)
+# 📌 Gráfico 4: Comparación de Macronutrientes por Categoría Seleccionada
+st.sidebar.subheader("🔍 Detalle por Categoría")
+categoria_seleccionada = st.sidebar.selectbox("Selecciona una Categoría", df["Categoría"].unique())
 
-# Relación entre tiempo medio y dificultad
-st.subheader("Tiempo medio de las recetas vs Dificultad")
-tiempo_dificultad = df.groupby("Dificultad")["Tiempo (min)"].mean().reset_index()
-fig_tiempo = px.bar(tiempo_dificultad, x="Dificultad", y="Tiempo (min)", title="Tiempo medio por dificultad")
-st.plotly_chart(fig_tiempo)
+df_categoria = df_filtered[df_filtered["Categoría"] == categoria_seleccionada]
+fig4 = px.bar(df_categoria, x=["Proteínas (100g)", "Grasas (100g)", "Carbohidratos (100g)"], 
+              title=f"Macronutrientes de {categoria_seleccionada}")
+st.plotly_chart(fig4)
 
-# Receta más rápida
-st.subheader("Receta más rápida")
-receta_mas_rapida = df.loc[df["Tiempo (min)"].idxmin()]
-st.write(f"La receta más rápida es **{receta_mas_rapida['Título']}**, con un tiempo de **{receta_mas_rapida['Tiempo (min)']} minutos**.")
+# 📌 Gráfico 5: Relación Tiempo vs Dificultad
+st.subheader("⏳ Tiempo vs Dificultad")
+fig5 = px.scatter(df_filtered, x="Tiempo (min)", y="Dificultad", color="Categoría", 
+                  title="Relación entre Tiempo de Preparación y Dificultad")
+st.plotly_chart(fig5)
+
+# 📌 Mostrar la Receta Más Rápida
+st.subheader("⚡ Receta Más Rápida")
+fastest_recipe = df_filtered[df_filtered["Tiempo (min)"] == df_filtered["Tiempo (min)"].min()]
+st.write(f"🥇 La receta más rápida es: **{fastest_recipe.iloc[0]['Título']}** con **{fastest_recipe.iloc[0]['Tiempo (min)']} min** de preparación.")
+
