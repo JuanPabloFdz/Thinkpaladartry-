@@ -124,7 +124,7 @@ st.dataframe(most_steps_recipes[["Título", "Categoría", "Número de Pasos", "D
 st.sidebar.header("🎯 Filtros de Recetas")
 
 # Selección de Categoría
-categoria_seleccionada = st.sidebar.selectbox("Selecciona una categoría:", df["Categoría"].unique())
+categoria_seleccionada = st.sidebar.selectbox("Selecciona una categoría:", df["Categoría"].unique(), key= "categoria_sugerencia")
 
 # Aplicar filtro por categoría
 df_categoria = df[df["Categoría"] == categoria_seleccionada]
@@ -160,7 +160,7 @@ st.subheader("🤖 Sugeridor de Recetas")
 quieres_sugerencia = st.checkbox("¿Quieres una sugerencia de receta?") # Boton para saber si quiere sugerencia o no
 
 if quieres_sugerencia:
-    categoria_sugerida = st.selectbox("Selecciona una categoría para la sugerencia:", df["Categoría"].unique()) # Hacemos que se deba selecionar una categoria. 
+    categoria_sugerida = st.selectbox("Selecciona una categoría para la sugerencia:", df["Categoría"].unique(), key= "sugerencia") # Hacemos que se deba selecionar una categoria. 
     df_sugerencias = df[df["Categoría"] == categoria_sugerida]
     
     if not df_sugerencias.empty:
