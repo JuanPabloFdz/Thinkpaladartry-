@@ -120,7 +120,38 @@ most_steps_recipes = df_filtered.nlargest(5, "Número de Pasos")
 st.dataframe(most_steps_recipes[["Título", "Categoría", "Número de Pasos", "Dificultad", "Calorías (100g)"]])
 
 #######################
+# 📌 Filtros y consultas avanzadas
+st.sidebar.header("🎯 Filtros de Recetas")
 
+# Selección de Categoría
+categoria_seleccionada = st.sidebar.selectbox("Selecciona una categoría:", df["Categoría"].unique())
+
+# Aplicar filtro por categoría
+df_categoria = df[df["Categoría"] == categoria_seleccionada]
+
+# 📌 **Métricas y Ranking de Recetas**
+st.subheader(f"📌 Ranking de Recetas en {categoria_seleccionada}")
+
+col1, col2, col3 = st.columns(3)
+
+# Recetas con más pasos
+with col1:
+    st.subheader("🔢 Más Pasos")
+    top_pasos = df_categoria.nlargest(5, "Número de Pasos")
+    st.table(top_pasos[["Título", "Número de Pasos"]])
+
+# Recetas con menor tiempo
+with col2:
+    st.subheader("⏳ Menos Tiempo")
+    top_rapidas = df_categoria.nsmallest(5, "Tiempo (min)")
+    st.table(top_rapidas[["Título", "Tiempo (min)"]])
+
+# Recetas con más ingredientes
+with col3:
+    st.subheader("🥦 Más Ingredientes")
+    df_categoria["Número de Ingredientes"] = df_categoria["Ingredientes"].apply(lambda x: len(str(x).split(", ")))
+    top_ingredientes = df_categoria.nlargest(5, "Número de Ingredientes")
+    st.table(top_ingredientes[["Título", "Número de Ingredientes"]])
 #####################
 # Hacemos un sugeridor de recetas 
 
