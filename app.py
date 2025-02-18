@@ -110,18 +110,6 @@ fig = px.bar(
 )
 st.plotly_chart(fig)
 
-# 📊 **Tiempo Medio de Recetas vs Dificultad**
-st.subheader("⏳ Tiempo Medio de Recetas por Dificultad")
-df_difficulty = df_filtered.groupby("Dificultad")["Tiempo (min)"].mean().reset_index()
-
-fig = px.bar(
-    df_difficulty,
-    x="Dificultad",
-    y="Tiempo (min)",
-    title="Tiempo Medio de Recetas vs Dificultad",
-    labels={"Tiempo (min)": "Tiempo Promedio (min)"}
-)
-st.plotly_chart(fig)
 
 # 🔥 **Top 5 Recetas Más Rápidas**
 st.subheader("⏩ Top 5 Recetas Más Rápidas")
