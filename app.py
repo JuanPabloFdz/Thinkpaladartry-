@@ -106,25 +106,14 @@ fig = px.bar(
 )
 st.plotly_chart(fig)
 
-########## Top recetas 
-# 🔥 **Top 5 Recetas Más Rápidas**
-st.subheader("⏩ Top 5 Recetas Más Rápidas")
-fastest_recipes = df_filtered[df_filtered["Tiempo (min)"] < 600].nsmallest(5, "Tiempo (min)")
-st.dataframe(fastest_recipes[["Título", "Categoría", "Tiempo (min)", "Dificultad", "Calorías (100g)"]])
 
-
-#Receta con más pasos. 
-# 🔢 **Top 5 Recetas con Más Pasos**
-st.subheader("📜 Top 5 Recetas con Más Pasos")
-most_steps_recipes = df_filtered.nlargest(5, "Número de Pasos")
-st.dataframe(most_steps_recipes[["Título", "Categoría", "Número de Pasos", "Dificultad", "Calorías (100g)"]])
 
 #######################
 # 
 st.sidebar.header("🎯 Filtros de Recetas")
 
 # Selección de Categoría
-categoria_seleccionada = st.sidebar.selectbox("Selecciona una categoría:", df["Categoría"].unique(), key= "categoria_sugerencia")
+categoria_seleccionada = st.sidebar.selectbox("Selecciona una categoría se aplicará sobre el Ranking de recetas:", df["Categoría"].unique(), key= "categoria_sugerencia")
 
 # Aplicar filtro por categoría
 df_categoria = df[df["Categoría"] == categoria_seleccionada]
