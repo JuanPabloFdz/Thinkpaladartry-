@@ -134,24 +134,15 @@ if quieres_sugerencia:
         st.warning("No hay recetas en esta categoría.")
 
 
-# Crear gráfico de radar con Plotly
-fig = go.Figure()
 
-for _, row in df_selected.iterrows():
-    fig.add_trace(go.Scatterpolar(
-        r=[row["Proteínas (100g)"], row["Carbohidratos (100g)"], row["Grasas (100g)"], row["Proteínas (100g)"]],
-        theta=["Proteínas", "Carbohidratos", "Grasas", "Proteínas"],  # Se repite "Proteínas" para cerrar el círculo
-        fill='toself',
-        name=row["Categoría"]
-    ))
+# Crear gráfico de dispersión
+fig_steps_time = px.scatter(df, 
+                            x="Número de Pasos", 
+                            y="Tiempo (min)", 
+                            color="Dificultad",  # Colorear por dificultad
+                            size="Tiempo (min)",  # Tamaño de los puntos según el tiempo
+                            hover_data=["Título", "Categoría"],  # Mostrar detalles al pasar el mouse
+                            title="Relación entre el Número de Pasos y el Tiempo de Preparación")
 
-# Configuración del diseño
-fig.update_layout(
-    polar=dict(
-        radialaxis=dict(visible=True, range=[0, df_selected[["Proteínas (100g)", "Carbohidratos (100g)", "Grasas (100g)"]].max().max()])
-    ),
-    showlegend=True
-)
-
-# Mostrar el gráfico en Streamlit
-st.plotly_chart(fig)
+# Mostrar en Streamlit
+st.plotly_chart(fig_steps_time)
