@@ -136,7 +136,8 @@ if quieres_sugerencia:
 
 
 # Crear gráfico de dispersión
-fig_steps_time = px.scatter(df, 
+df_filtered = df[df["Tiempo (min)"] <= 600]
+fig_steps_time = px.scatter(df_filtered, 
                             x="Número de Pasos", 
                             y="Tiempo (min)", 
                             color="Dificultad",  # Colorear por dificultad
