@@ -115,7 +115,7 @@ most_steps_recipes = df_filtered.nlargest(5, "Número de Pasos")
 st.dataframe(most_steps_recipes[["Título", "Categoría", "Número de Pasos", "Dificultad", "Calorías (100g)"]])
 
 
-st.write(f"🥇 **{fastest_recipe['Título']}** (Tiempo: {fastest_recipe['Tiempo (min)']} min)")
+
 
 # 🛒 **Sugeridor de Recetas**
 st.subheader("🤖 Sugeridor de Recetas")
