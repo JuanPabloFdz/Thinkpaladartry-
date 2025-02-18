@@ -2,66 +2,93 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# 📌 Configuración de la Página
-st.set_page_config(page_title="Dashboard de Recetas", page_icon="🍽️", layout="wide")
-
-# 📂 Cargar el CSV con los datos de recetas
+# Cargar los datos desde el CSV
 @st.cache_data
 def load_data():
     return pd.read_csv("recetas.csv")
 
 df = load_data()
 
-# 🎨 Estilo
-st.title("🍽️ Dashboard de Recetas")
-st.markdown("Analiza las recetas según su contenido nutricional, dificultad y tiempo de preparación.")
+# Título de la aplicación
+st.title("📊 Análisis de Recetas - ThinkPaladar")
 
-# 📌 Filtros
-st.sidebar.header("📊 Filtros")
-categorias = st.sidebar.multiselect("Selecciona Categorías", df["Categoría"].unique(), default=df["Categoría"].unique())
+# Filtrar recetas que tienen información nutricional
+df_filtered = df[df["Tiene Nutrición"] == 1]
 
-# Filtrar por categorías seleccionadas
-df_filtered = df[df["Categoría"].isin(categorias)]
+# 1️⃣ **Gráfico de Barras: Grasas, Proteínas e Hidratos por Categoría**
+st.subheader("🔹 Promedio de Grasas, Proteínas y Carbohidratos por Categoría")
+df_nutrition = df_filtered.groupby("Categoría")[["Grasas", "Proteínas", "Carbohidratos"]].mean().reset_index()
 
-# 📌 Gráfico 1: Comparación de Grasas, Proteínas y Carbohidratos por Categoría
-st.subheader("📊 Comparación de Macronutrientes por Categoría")
-df_nutrition = df_filtered.groupby("Categoría")[["Grasas (100g)", "Proteínas (100g)", "Carbohidratos (100g)"]].mean().reset_index()
-fig1 = px.bar(df_nutrition, x="Categoría", y=["Grasas (100g)", "Proteínas (100g)", "Carbohidratos (100g)"], 
-              barmode="group", title="Grasas, Proteínas y Carbohidratos Medios por Categoría")
+fig1 = px.bar(df_nutrition, 
+              x="Categoría", 
+              y=["Grasas", "Proteínas", "Carbohidratos"],
+              title="Macronutrientes promedio por Categoría",
+              labels={"value": "Gramos por 100g", "variable": "Macronutriente"},
+              barmode="group")
 st.plotly_chart(fig1)
 
-# 📌 Gráfico 2: Calorías Medias por Categoría
-st.subheader("🔥 Calorías Medias por Categoría")
-df_calories = df_filtered.groupby("Categoría")["Calorías (100g)"].mean().reset_index()
-fig2 = px.bar(df_calories, x="Categoría", y="Calorías (100g)", title="Calorías Medias por Categoría", color="Calorías (100g)")
+# 2️⃣ **Gráfico de Barras: Calorías Medias por Categoría**
+st.subheader("🔹 Calorías promedio por Categoría")
+df_calories = df_filtered.groupby("Categoría")["Calorías"].mean().reset_index()
+
+fig2 = px.bar(df_calories, 
+              x="Categoría", 
+              y="Calorías",
+              title="Calorías promedio por Categoría",
+              labels={"Calorías": "Kcal por 100g"},
+              color="Calorías")
 st.plotly_chart(fig2)
 
-# 📌 Gráfico 3: Clasificación de Recetas por Calorías
-st.subheader("🍏 Clasificación de Recetas por Calorías")
-df_filtered["Caloría Nivel"] = pd.cut(df_filtered["Calorías (100g)"], bins=[0, 250, 370, 1000], 
-                                       labels=["Baja", "Normal", "Alta"])
-df_calorie_count = df_filtered.groupby(["Categoría", "Caloría Nivel"]).size().reset_index(name="Conteo")
-fig3 = px.bar(df_calorie_count, x="Categoría", y="Conteo", color="Caloría Nivel", 
-              title="Número de Recetas por Nivel de Calorías")
+# 3️⃣ **Clasificación de recetas según calorías**
+st.subheader("🔹 Clasificación de Recetas según Calorías")
+df_filtered["Clasificación Calórica"] = pd.cut(df_filtered["Calorías"], 
+                                               bins=[0, 250, 370, float("inf")], 
+                                               labels=["Baja (<250 kcal)", "Normal (250-370 kcal)", "Alta (>370 kcal)"])
+
+df_caloric_distribution = df_filtered.groupby("Categoría")["Clasificación Calórica"].value_counts().unstack()
+
+fig3 = px.bar(df_caloric_distribution, 
+              title="Clasificación de Recetas según Calorías",
+              labels={"value": "Número de Recetas", "variable": "Clasificación Calórica"},
+              barmode="stack")
 st.plotly_chart(fig3)
 
-# 📌 Gráfico 4: Comparación de Macronutrientes por Categoría Seleccionada
-st.sidebar.subheader("🔍 Detalle por Categoría")
-categoria_seleccionada = st.sidebar.selectbox("Selecciona una Categoría", df["Categoría"].unique())
+# 4️⃣ **Selección de Categoría para detalle nutricional**
+st.subheader("🔹 Selecciona una Categoría para ver su detalle nutricional")
+categoria_seleccionada = st.selectbox("Selecciona una categoría", df_filtered["Categoría"].unique())
 
 df_categoria = df_filtered[df_filtered["Categoría"] == categoria_seleccionada]
-fig4 = px.bar(df_categoria, x=["Proteínas (100g)", "Grasas (100g)", "Carbohidratos (100g)"], 
-              title=f"Macronutrientes de {categoria_seleccionada}")
+
+fig4 = px.bar(df_categoria, 
+              x="Título", 
+              y=["Grasas", "Proteínas", "Carbohidratos", "Calorías"],
+              title=f"Macronutrientes y Calorías en {categoria_seleccionada}",
+              labels={"value": "Cantidad por 100g", "variable": "Macronutriente"},
+              barmode="group")
 st.plotly_chart(fig4)
 
-# 📌 Gráfico 5: Relación Tiempo vs Dificultad
-st.subheader("⏳ Tiempo vs Dificultad")
-fig5 = px.scatter(df_filtered, x="Tiempo (min)", y="Dificultad", color="Categoría", 
-                  title="Relación entre Tiempo de Preparación y Dificultad")
+# 5️⃣ **Comparación Tiempo vs Dificultad**
+st.subheader("🔹 Comparación entre Tiempo de preparación y Dificultad")
+fig5 = px.scatter(df_filtered, 
+                  x="Tiempo (min)", 
+                  y="Dificultad",
+                  color="Categoría",
+                  size="Calorías",
+                  title="Tiempo de preparación vs Dificultad",
+                  labels={"Tiempo (min)": "Tiempo en minutos", "Dificultad": "Nivel de dificultad"})
 st.plotly_chart(fig5)
 
-# 📌 Mostrar la Receta Más Rápida
-st.subheader("⚡ Receta Más Rápida")
-fastest_recipe = df_filtered[df_filtered["Tiempo (min)"] == df_filtered["Tiempo (min)"].min()]
-st.write(f"🥇 La receta más rápida es: **{fastest_recipe.iloc[0]['Título']}** con **{fastest_recipe.iloc[0]['Tiempo (min)']} min** de preparación.")
+# 6️⃣ **Receta Más Rápida**
+st.subheader("🔹 Receta más rápida")
+receta_mas_rapida = df_filtered[df_filtered["Tiempo (min)"] == df_filtered["Tiempo (min)"].min()]
+st.write("**La receta más rápida es:**", receta_mas_rapida.iloc[0]["Título"])
+st.write("🕒 **Tiempo:**", receta_mas_rapida.iloc[0]["Tiempo (min)"], "minutos")
+st.write("🔥 **Calorías:**", receta_mas_rapida.iloc[0]["Calorías"], "Kcal por 100g")
+
+# **Botón para mostrar datos en tabla**
+st.subheader("📋 Datos de Recetas")
+if st.button("Mostrar datos en tabla"):
+    st.dataframe(df_filtered)
+
+
 
