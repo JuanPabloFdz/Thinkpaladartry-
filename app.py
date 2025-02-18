@@ -151,7 +151,8 @@ with col3:
     st.subheader("🥦 Más Ingredientes")
     df_categoria["Número de Ingredientes"] = df_categoria["Ingredientes"].apply(lambda x: len(str(x).split(", ")))
     top_ingredientes = df_categoria.nlargest(5, "Número de Ingredientes")
-    st.table(top_ingredientes[["Título", "Número de Ingredientes"]])
+    st.table(top_ingredientes[["Título", "Número de Ingredientes"]])[["Título", "Número de Ingredientes"]]
+    st.table(top_ingredientes.set_index("Título"))
 #####################
 # Hacemos un sugeridor de recetas 
 
