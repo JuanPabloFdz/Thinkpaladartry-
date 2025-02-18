@@ -115,7 +115,7 @@ st.plotly_chart(fig)
 st.sidebar.header("🎯 Filtros de Recetas")
 
 # Selección de Categoría
-categoria_seleccionada = st.selectbox("Selecciona una categoría se aplicará sobre el Ranking de recetas:", df["Categoría"].unique(), key= "categoria_sugerencia") # Hacemos un nuevo selectbox
+categoria_seleccionada = st.sidebar.selectbox("Selecciona una categoría se aplicará sobre el Ranking de recetas:", df["Categoría"].unique(), key= "categoria_sugerencia") # Hacemos un nuevo selectbox
 
 # Aplicar filtro por categoría
 df_categoria = df[df["Categoría"] == categoria_seleccionada]
