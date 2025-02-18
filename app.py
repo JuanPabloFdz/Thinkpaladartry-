@@ -45,17 +45,31 @@ with col1:
 
 
 with col2: 
-    # 📊 **Gráfico de barras: Calorías Medias por Categoría**
-    st.subheader("🔥 Calorías Medias por Categoría")
-    df_calories = df_filtered.groupby("Categoría")["Calorías (100g)"].mean().reset_index()
+    # 📊 **Tiempo Medio de Recetas vs Dificultad**
+    st.subheader("⏳ Tiempo Medio de Recetas por Dificultad")
+    df_difficulty = df_filtered.groupby("Dificultad")["Tiempo (min)"].mean().reset_index()
 
     fig = px.bar(
-    df_calories, 
-    x="Categoría", 
-    y="Calorías (100g)",
-    title="Calorías Medias por Categoría",
-    labels={"Calorías (100g)": "Calorías por 100g"})
+    df_difficulty,
+    x="Dificultad",
+    y="Tiempo (min)",
+    title="Tiempo Medio de Recetas vs Dificultad",
+    labels={"Tiempo (min)": "Tiempo Promedio (min)"})
     st.plotly_chart(fig)
+
+
+    
+# 📊 **Gráfico de barras: Calorías Medias por Categoría**
+st.subheader("🔥 Calorías Medias por Categoría")
+df_calories = df_filtered.groupby("Categoría")["Calorías (100g)"].mean().reset_index()
+
+fig = px.bar(
+df_calories, 
+x="Categoría", 
+y="Calorías (100g)",
+title="Calorías Medias por Categoría",
+labels={"Calorías (100g)": "Calorías por 100g"})
+st.plotly_chart(fig)
 
 # 📊 **Clasificación de recetas por calorías**
 st.subheader("🍽️ Clasificación de Recetas por Calorías")
