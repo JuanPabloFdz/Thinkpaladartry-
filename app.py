@@ -15,9 +15,12 @@ df = load_data()
 st.title("📊 Análisis de Recetas - ThinkPaladar")
 
 # Filtrar recetas que tienen información nutricional
-df_filtered = df[df.iloc[:, 13] == 1]
-
-
+###################################################################################
+st.write("Columnas disponibles en el DataFrame:", df.columns.tolist())
+print(df.head())
+df["Tiene Nutrición"] = pd.to_numeric(df["Tiene Nutrición"], errors="coerce")
+df_filtered = df[df["Tiene Nutrición"] == 1]
+######################################################
 # 1️⃣ **Gráfico de Barras: Grasas, Proteínas e Hidratos por Categoría**
 st.subheader("🔹 Promedio de Grasas, Proteínas y Carbohidratos por Categoría")
 df_nutrition = df_filtered.groupby("Categoría")[["Grasas", "Proteínas", "Carbohidratos"]].mean().reset_index()
