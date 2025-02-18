@@ -104,9 +104,16 @@ fig = px.bar(
 )
 st.plotly_chart(fig)
 
-# 🔥 **Receta más rápida**
-st.subheader("⏩ Receta Más Rápida")
-fastest_recipe = df_filtered.loc[df_filtered["Tiempo (min)"].idxmin()]
+# 🔥 **Top 5 Recetas Más Rápidas**
+st.subheader("⏩ Top 5 Recetas Más Rápidas")
+fastest_recipes = df_filtered[df_filtered["Tiempo (min)"] < 600].nsmallest(5, "Tiempo (min)")
+st.dataframe(fastest_recipes[["Título", "Categoría", "Tiempo (min)", "Dificultad", "Calorías (100g)"]])
+
+# 🔢 **Top 5 Recetas con Más Pasos**
+st.subheader("📜 Top 5 Recetas con Más Pasos")
+most_steps_recipes = df_filtered.nlargest(5, "Número de Pasos")
+st.dataframe(most_steps_recipes[["Título", "Categoría", "Número de Pasos", "Dificultad", "Calorías (100g)"]])
+
 
 st.write(f"🥇 **{fastest_recipe['Título']}** (Tiempo: {fastest_recipe['Tiempo (min)']} min)")
 
