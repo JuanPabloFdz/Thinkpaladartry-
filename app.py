@@ -25,37 +25,32 @@ else:
     st.write("⚠️ Advertencia: La columna 'Tiene Nutrición' no está presente en el CSV.")
     df_filtered = df  # Usamos todo el dataset si la columna no está
 
+ 
+# 📊 **Gráfico de barras: Macronutrientes medios por categoría**
+st.subheader("📊 Macronutrientes Medios por Categoría")
+df_nutrition = df_filtered.groupby("Categoría")[["Grasas (100g)", "Proteínas (100g)", "Carbohidratos (100g)"]].mean().reset_index()
 
-col1, col2= st.columns(2)
-
-
-with col1: 
-    # 📊 **Gráfico de barras: Macronutrientes medios por categoría**
-    st.subheader("📊 Macronutrientes Medios por Categoría")
-    df_nutrition = df_filtered.groupby("Categoría")[["Grasas (100g)", "Proteínas (100g)", "Carbohidratos (100g)"]].mean().reset_index()
-
-    fig = px.bar(
-    df_nutrition, 
-    x="Categoría", 
-    y=["Grasas (100g)", "Proteínas (100g)", "Carbohidratos (100g)"],
-    title="Distribución de Macronutrientes por Categoría",
-    labels={"value": "Cantidad (100g)", "variable": "Macronutriente"},
-    barmode="group")
-    st.plotly_chart(fig)
+fig = px.bar(
+df_nutrition, 
+x="Categoría", 
+y=["Grasas (100g)", "Proteínas (100g)", "Carbohidratos (100g)"],
+title="Distribución de Macronutrientes por Categoría",
+labels={"value": "Cantidad (100g)", "variable": "Macronutriente"},
+barmode="group")
+st.plotly_chart(fig)
 
 
-with col2: 
-    # 📊 **Tiempo Medio de Recetas vs Dificultad**
-    st.subheader("⏳ Tiempo Medio de Recetas por Dificultad")
-    df_difficulty = df_filtered.groupby("Dificultad")["Tiempo (min)"].mean().reset_index()
+# 📊 **Tiempo Medio de Recetas vs Dificultad**
+st.subheader("⏳ Tiempo Medio de Recetas por Dificultad")
+df_difficulty = df_filtered.groupby("Dificultad")["Tiempo (min)"].mean().reset_index()
 
-    fig = px.bar(
-    df_difficulty,
-    x="Dificultad",
-    y="Tiempo (min)",
-    title="Tiempo Medio de Recetas vs Dificultad",
-    labels={"Tiempo (min)": "Tiempo Promedio (min)"})
-    st.plotly_chart(fig)
+fig = px.bar(
+df_difficulty,
+x="Dificultad",
+y="Tiempo (min)",
+title="Tiempo Medio de Recetas vs Dificultad",
+labels={"Tiempo (min)": "Tiempo Promedio (min)"})
+st.plotly_chart(fig)
 
 
     
