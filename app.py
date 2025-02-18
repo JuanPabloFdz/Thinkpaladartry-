@@ -1,3 +1,25 @@
+
+import pandas as pd
+import streamlit as st
+
+# 📌 Cargar el CSV
+df = pd.read_csv("recetas.csv")
+
+# 📌 Verificar las columnas disponibles
+st.write("🔎 Columnas disponibles en el DataFrame:", df.columns.tolist())
+
+# 📌 Limpiar nombres de columnas por si hay espacios extra
+df.columns = df.columns.str.strip()
+
+# 📌 Comprobar si "Tiene Nutrición" está en el DataFrame
+if "Tiene Nutrición" not in df.columns:
+    st.error("⚠️ Error: La columna 'Tiene Nutrición' no está presente en el DataFrame.")
+else:
+    df_filtered = df[df["Tiene Nutrición"] == 1]  # Filtrar solo recetas con nutrición
+
+    # Mostrar el DataFrame filtrado
+    st.dataframe(df_filtered)
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
