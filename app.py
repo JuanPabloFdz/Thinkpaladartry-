@@ -132,3 +132,25 @@ if quieres_sugerencia:
     else:
         st.warning("No hay recetas en esta categoría.")
 
+
+# Crear gráfico de radar con Plotly
+fig = go.Figure()
+
+for _, row in df_selected.iterrows():
+    fig.add_trace(go.Scatterpolar(
+        r=[row["Proteínas (100g)"], row["Carbohidratos (100g)"], row["Grasas (100g)"], row["Proteínas (100g)"]],
+        theta=["Proteínas", "Carbohidratos", "Grasas", "Proteínas"],  # Se repite "Proteínas" para cerrar el círculo
+        fill='toself',
+        name=row["Categoría"]
+    ))
+
+# Configuración del diseño
+fig.update_layout(
+    polar=dict(
+        radialaxis=dict(visible=True, range=[0, df_selected[["Proteínas (100g)", "Carbohidratos (100g)", "Grasas (100g)"]].max().max()])
+    ),
+    showlegend=True
+)
+
+# Mostrar el gráfico en Streamlit
+st.plotly_chart(fig)
