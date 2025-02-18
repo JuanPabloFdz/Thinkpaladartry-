@@ -87,7 +87,8 @@ fig = px.bar(
     barmode="stack"
 )
 st.plotly_chart(fig)
-
+###########################
+#Gráfico dinámico. 
 # 📌 **Selección de una categoría para ver detalles nutricionales**
 st.subheader("📌 Selecciona una Categoría para Ver sus Detalles") #Titulo del gráfico
 categorias = df_filtered["Categoría"].unique()
@@ -110,10 +111,11 @@ st.plotly_chart(fig)
 
 #######################
 # 
+#hagamos un ranking de recetas según la categoria y de acuerdo a distintos criterios. Esos criterios serán : Número de pasos, Tiempo y cantidad de ingredientes. 
 st.sidebar.header("🎯 Filtros de Recetas")
 
 # Selección de Categoría
-categoria_seleccionada = st.sidebar.selectbox("Selecciona una categoría se aplicará sobre el Ranking de recetas:", df["Categoría"].unique(), key= "categoria_sugerencia")
+categoria_seleccionada = st.selectbox("Selecciona una categoría se aplicará sobre el Ranking de recetas:", df["Categoría"].unique(), key= "categoria_sugerencia") # Hacemos un nuevo selectbox
 
 # Aplicar filtro por categoría
 df_categoria = df[df["Categoría"] == categoria_seleccionada]
@@ -121,24 +123,23 @@ df_categoria = df[df["Categoría"] == categoria_seleccionada]
 # 📌 **Métricas y Ranking de Recetas**
 st.subheader(f"📌 Ranking de Recetas en {categoria_seleccionada}")
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3 = st.columns(3) #Usamos esto para crear tres columnas en 
 
-# Recetas con más pasos
+# Recetas con mas pasos
 with col1:
-    st.subheader("🔢 Más Pasos")
-    top_pasos = df_categoria.nlargest(5, "Número de Pasos")
+    st.subheader("🔢 Más Pasos") #Encabezado. 
+    top_pasos = df_categoria.nlargest(5, "Número de Pasos") #Top 5 pasos
     st.table(top_pasos[["Título", "Número de Pasos"]])
 
 # Recetas con menor tiempo
 with col2:
-    st.subheader("⏳ Menos Tiempo")
-    top_rapidas = df_categoria.nsmallest(5, "Tiempo (min)")
+    st.subheader("⏳ Menos Tiempo")#Encabezado. 
+    top_rapidas = df_categoria.nsmallest(5, "Tiempo (min)") #Top 5 tiempo 
     st.table(top_rapidas[["Título", "Tiempo (min)"]])
-
 # Recetas con más ingredientes
 with col3:
-    st.subheader("🥦 Más Ingredientes")
-    df_categoria["Número de Ingredientes"] = df_categoria["Ingredientes"].apply(lambda x: len(str(x).split(", ")))
+    st.subheader("🥦 Más Ingredientes")#Encabezado. 
+    df_categoria["Número de Ingredientes"] = df_categoria["Ingredientes"].apply(lambda x: len(str(x).split(", "))) #Top 5 ingrdientes
     top_ingredientes = df_categoria.nlargest(5, "Número de Ingredientes")
     st.table(top_ingredientes[["Título", "Número de Ingredientes"]])
 #####################
@@ -169,7 +170,7 @@ if quieres_sugerencia:
 
 
 
-# Crear gráfico de dispersión
+# Por último, gráfico de dispersión
 df_filtered = df[df["Tiempo (min)"] <= 600] #Hacemos un filtrado porque hay recetas muy extensas y distorsionan la  visualización. 
 fig_pasos = px.scatter(df_filtered, 
                             x="Número de Pasos", 
