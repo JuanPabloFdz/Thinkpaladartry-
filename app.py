@@ -15,7 +15,7 @@ df.columns = df.columns.str.strip()
 if "Tiene Nutrición" not in df.columns:
     st.error("⚠️ Error: La columna 'Tiene Nutrición' no está presente en el DataFrame.")
 else:
-    df_filtered = df[df["Tiene Nutrición"] == 1]  # Filtrar solo recetas con nutrición
+    df_filtered = df[df[14] == 1]  # Filtrar solo recetas con nutrición
 
     # Mostrar el DataFrame filtrado
     st.dataframe(df_filtered)
